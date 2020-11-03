@@ -8,6 +8,7 @@ const listen = mqtt.connect("mqtt://test.mosquitto.org");
 const fetch = require("node-fetch");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
+const imageToBase64 = require('image-to-base64');
 const SESSION_FILE_PATH = "./session.json";
 // file is included here
 let sessionCfg;
@@ -348,6 +349,27 @@ const botTol2 = () => {
 	if (msg.body == "!ping reply") {
     // Send a new message as a reply to the current one
 		 msg.reply("pong");
+		
+	if (messageType == 'imageMessage')
+   {
+      let caption = imageMessage.caption.toLocaleLowerCase()
+      const buffer = await conn.downloadMediaMessage(m) // to decrypt & use as a buffer
+      if (caption == '!sticker')
+      {
+         const stiker = await conn.downloadAndSaveMediaMessage(m) // to decrypt & save to file
+
+         const
+         {
+            exec
+         } = require("child_process");
+         exec('cwebp -q 50 ' + stiker + ' -o temp/' + jam + '.webp', (error, stdout, stderr) =>
+         {
+            let stik = fs.readFileSync('temp/' + jam + '.webp')
+            conn.sendMessage(id, stik, MessageType.sticker)
+         });
+      }
+   }
+	
 	} else if (msg.body.startsWith('!covid')) {
 		const get = require('got')
 		const body = await get.post('https://api.kawalcorona.com/indonesia', {
